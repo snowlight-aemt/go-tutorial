@@ -6,9 +6,11 @@ import (
 
 type Dictionary map[string]string
 
-var errNotFound = errors.New("not Found")
-
-var errAlreadyExists = errors.New("already exists")
+var (
+	errNotFound      = errors.New("not Found")
+	errCanNotUpdate  = errors.New("can not update no existing word")
+	errAlreadyExists = errors.New("already exists")
+)
 
 func (d Dictionary) Search(word string) (string, error) {
 	value, exists := d[word]
@@ -27,4 +29,24 @@ func (d Dictionary) Add(word, value string) error {
 	}
 
 	return errAlreadyExists
+}
+
+func (d Dictionary) Update(word, value string) error {
+	_, err := d.Search(word)
+	if err == errNotFound {
+		return errCanNotUpdate
+	}
+
+	d[word] = value
+	return nil
+}
+
+func (d Dictionary) Delete(word string) error {
+	_, err := d.Search(word)
+	if err == errNotFound {
+		return err
+	}
+
+	delete(d, word)
+	return nil
 }
